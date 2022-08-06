@@ -20,7 +20,7 @@ public class DummyController {
     }
 
     @GetMapping("/alls")
-    public ResponseEntity getAll(){
+    public ResponseEntity getAll() {
         return new ResponseEntity(dummyService.getAllDummyEntity(), HttpStatus.OK);
     }
 }
