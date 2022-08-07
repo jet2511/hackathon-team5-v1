@@ -7,4 +7,5 @@ public class ExpenseDetailDTO {
     private Long totalIncome;
     private Long totalExpenses;
     private String monthAndYear;
+    private String title;
 }

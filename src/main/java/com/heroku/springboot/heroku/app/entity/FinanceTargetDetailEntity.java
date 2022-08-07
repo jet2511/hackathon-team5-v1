@@ -26,6 +26,9 @@ public class FinanceTargetDetailEntity {
     @Column(name = "status")
     private boolean status;
 
+    @Column(name = "months_of_target")
+    private Integer numOfMonths;
+
     @ManyToOne
     @JoinColumn(name = "finance_category_id")
     private FinanceTargetCategoryEntity financeTargetCategory;

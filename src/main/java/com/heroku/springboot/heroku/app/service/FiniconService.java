@@ -52,6 +52,8 @@ public class FiniconService implements IFiniconService {
                     detailDto.setCategoryName("Mua " + financeDetail.getFinanceTargetCategory().getName());
                     detailDto.setAmount(financeDetail.getAmount());
                     detailDto.setStatus(initStatus(financeDetail.getCreateDate(), financeDetail.isStatus()));
+                    long percent = dto.getTotalAmount() * 100 / financeDetail.getAmount();
+                    detailDto.setCompletePercent(percent > 100 ? String.valueOf(100L) : percent + "");
                     return detailDto;
                 }).collect(Collectors.toList()));
         return dto;
@@ -79,6 +81,7 @@ public class FiniconService implements IFiniconService {
         LocalDate localDate = LocalDate.now();
         for (int i = 0; i < 12; i++) {
             ExpenseDetailDTO dto = new ExpenseDetailDTO();
+            dto.setTitle(localDate.getMonthValue() + "");
             dto.setMonthAndYear("Tháng " + localDate.getMonthValue() + "/" + localDate.getYear());
             LocalDate finalLocalDate = localDate;
             List<TransactionEntity> tranInMonth = transactions.stream()
@@ -130,20 +133,50 @@ public class FiniconService implements IFiniconService {
     }
 
     @Override
-    public FinanceTargetDetailEntity addFinanceTargetDetail(FinanceTargetCreateRequestDto requestDto) {
+    public FinanceTargetCreateResponseDto addFinanceTargetDetail(FinanceTargetCreateRequestDto requestDto) {
         FinanceTargetDetailEntity entity = new FinanceTargetDetailEntity();
         entity.setAmount(requestDto.getAmount());
         entity.setNote(requestDto.getNote());
         entity.setCreateDate(new Timestamp(System.currentTimeMillis()));
         entity.setFinanceTargetCategory(financeCategoryRepository.getById(requestDto.getFinanceCategoryId()));
         entity.setStatus(true);
+        entity.setNumOfMonths(requestDto.getNumOfMonths());
         financeTargetDetailRepository.save(entity);
+
+        if (requestDto.getIncomeExtras() != null && requestDto.getIncomeExtras() > 0) {
+            AssetEntity assetEntity = new AssetEntity();
+            assetEntity.setName("Khác");
+            assetEntity.setAmount(requestDto.getIncomeExtras());
+            assetEntity.setType(2L);
+            assetRepository.save(assetEntity);
+        }
 
         FinanceTargetCreateResponseDto responseDto = new FinanceTargetCreateResponseDto();
         responseDto.setId(entity.getId());
         responseDto.setTargetAmount(entity.getAmount());
         responseDto.setTotalOutstanding(getTotalSpendingAmount());
-        responseDto.setSuggestEnable(responseDto.getTotalOutstanding().doubleValue() / responseDto.getTargetAmount() > 0.3);
-        return entity;
+        responseDto.setSuggestEnable(isOnSuggest(responseDto.getTotalOutstanding(), responseDto.getTargetAmount(), requestDto.getNumOfMonths()));
+        return responseDto;
+    }
+
+    @Override
+    public FinanceTargetCreateResponseDto getFinanceDetail(Long id) {
+        FinanceTargetCreateResponseDto dto = new FinanceTargetCreateResponseDto();
+        FinanceTargetDetailEntity financeTargetDetail = financeTargetDetailRepository.findById(id).get();
+        dto.setId(financeTargetDetail.getId());
+        dto.setTotalOutstanding(getTotalSpendingAmount());
+        dto.setTargetAmount(financeTargetDetail.getAmount());
+        dto.setSuggestEnable(isOnSuggest(dto.getTotalOutstanding(), dto.getTargetAmount(), financeTargetDetail.getNumOfMonths()));
+
+        return dto;
+    }
+
+    private boolean isOnSuggest(Long totalOutstanding, Long amount, Integer numOfMonths) {
+        long DEFAULT_SALARY = 25000000L;
+        if (numOfMonths != null) {
+            return (amount - totalOutstanding) / DEFAULT_SALARY > numOfMonths;
+        }
+
+        return totalOutstanding.doubleValue() / amount > 0.3;
     }
 }

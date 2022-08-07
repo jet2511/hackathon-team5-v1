@@ -19,5 +19,8 @@ public class AssetEntity {
     private Long amount;
 
     @Column(name = "type")
-    private Long isIncome;
+    private Long type;
+
+    @Column(name = "note")
+    private Long note;
 }

@@ -43,4 +43,9 @@ public class FiniconController {
     public ResponseEntity addFinanceTargetDetail(@RequestBody FinanceTargetCreateRequestDto requestDto) {
         return new ResponseEntity(finiconService.addFinanceTargetDetail(requestDto), HttpStatus.OK);
     }
+
+    @GetMapping("/finance-details/{id}")
+    public ResponseEntity getFinanceDetail(@PathVariable Long id) {
+        return new ResponseEntity(finiconService.getFinanceDetail(id), HttpStatus.OK);
+    }
 }

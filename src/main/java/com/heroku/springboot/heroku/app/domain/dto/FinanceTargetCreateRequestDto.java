@@ -8,4 +8,5 @@ public class FinanceTargetCreateRequestDto {
     private Long amount;
     private String note;
     private Long incomeExtras;
+    private Integer numOfMonths;
 }

@@ -2,8 +2,8 @@ package com.heroku.springboot.heroku.app.service;
 
 import com.heroku.springboot.heroku.app.domain.dto.FinanceCategoryDto;
 import com.heroku.springboot.heroku.app.domain.dto.FinanceTargetCreateRequestDto;
+import com.heroku.springboot.heroku.app.domain.dto.FinanceTargetCreateResponseDto;
 import com.heroku.springboot.heroku.app.domain.dto.FiniconHomepageDTO;
-import com.heroku.springboot.heroku.app.entity.FinanceTargetDetailEntity;
 
 import java.util.List;
 
@@ -12,6 +12,7 @@ public interface IFiniconService {
 
     List<FinanceCategoryDto> getFinanceCategories();
 
-    FinanceTargetDetailEntity addFinanceTargetDetail(FinanceTargetCreateRequestDto requestDto);
+    FinanceTargetCreateResponseDto addFinanceTargetDetail(FinanceTargetCreateRequestDto requestDto);
 
+    FinanceTargetCreateResponseDto getFinanceDetail(Long id);
 }
